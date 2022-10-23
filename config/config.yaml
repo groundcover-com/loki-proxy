@@ -1,0 +1,7 @@
+bind:
+  port: 8080
+  address: 0.0.0.0
+target:
+  label_name: customer
+  tenant_id: customers
+  url: http://loki:3100/loki/api/v1/push
