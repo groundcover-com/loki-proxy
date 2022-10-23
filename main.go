@@ -18,6 +18,7 @@ import (
 )
 
 const (
+	HEALTHCHECK_ENDPOINT  = "/health"
 	PUSH_ENDPOINT         = "/loki/api/v1/push"
 	TENANT_ID_HEADER_NAME = "X-Scope-OrgID"
 )
@@ -44,7 +45,12 @@ func main() {
 
 	router := gin.Default()
 	router.POST(PUSH_ENDPOINT, handlePushRequest)
+	router.GET(HEALTHCHECK_ENDPOINT, handleHealthCheck)
 	router.Run(config.BindAddr())
+}
+
+func handleHealthCheck(c *gin.Context) {
+	c.String(http.StatusOK, "ok")
 }
 
 func handlePushRequest(c *gin.Context) {
