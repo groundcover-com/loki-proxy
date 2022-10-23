@@ -58,9 +58,11 @@ jobs:
           GITHUB_TAG: ${{ github.ref_name	 }}
         run: |
           version=${GITHUB_TAG#v}
+          helm lint ../chart
           helm package --version ${version} --app-version ${version} ../chart
           helm repo index --url https://helm.groundcover.com .
           git config user.name "ci-groundcover"
           git config user.email "ci@groundcover.com"
           git add .
           git commit -m "Added loki-proxy ${version} chart"
+          git push
