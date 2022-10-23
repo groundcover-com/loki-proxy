@@ -21,18 +21,6 @@ jobs:
       #   with:
       #     fail-on-severity: low
       -
-        name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: us-east-1
-          role-to-assume: arn:aws:iam::125608480246:role/loki-proxy-github-actions
-      -
-        name: Login to Amazon ECR Public
-        id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registry-type: public
-      -
         name: Set up Go
         uses: actions/setup-go@v3
         with:
