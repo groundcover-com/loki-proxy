@@ -13,6 +13,8 @@ import (
 	"github.com/grafana/loki/pkg/logproto"
 	"github.com/grafana/loki/pkg/util/log"
 	_config "github.com/groundcover-com/loki-proxy/config"
+	"github.com/groundcover-com/loki-proxy/middlewares"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
 )
@@ -44,8 +46,10 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Use(middlewares.MetricsMiddleware)
 	router.POST(PUSH_ENDPOINT, handlePushRequest)
 	router.GET(HEALTHCHECK_ENDPOINT, handleHealthCheck)
+	router.GET(middlewares.METRICS_ENDPOINT, gin.WrapH(promhttp.Handler()))
 	router.Run(config.BindAddr())
 }
 
