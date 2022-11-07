@@ -24,8 +24,9 @@ type Config struct {
 	}
 }
 
-func NewConfig() *Config {
+func NewConfig() (*Config, error) {
 	var config Config
+	var err error
 
 	viper.AutomaticEnv()
 	// these will resolve to config/config.yaml
@@ -36,17 +37,17 @@ func NewConfig() *Config {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.ReadConfig(strings.NewReader(defaultConfig))
 
-	if err := viper.MergeInConfig(); err != nil {
+	if err = viper.MergeInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			panic(err)
+			return nil, err
 		}
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &config
+	return &config, nil
 }
 
 func (config *Config) Print() {
@@ -57,13 +58,13 @@ func (config *Config) BindAddr() string {
 	return fmt.Sprintf("%s:%d", config.Bind.Address, config.Bind.Port)
 }
 
-func (config *Config) TargetUrl() *url.URL {
+func (config *Config) TargetUrl() (*url.URL, error) {
 	var err error
 
 	var targetUrl *url.URL
 	if targetUrl, err = url.Parse(config.Target.Url); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return targetUrl
+	return targetUrl, nil
 }

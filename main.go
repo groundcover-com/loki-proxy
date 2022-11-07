@@ -17,10 +17,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
+	"go.uber.org/zap"
 )
 
 const (
 	HEALTHCHECK_ENDPOINT  = "/health"
+	CONFIG_ENDPOINT       = "/config"
 	PUSH_ENDPOINT         = "/loki/api/v1/push"
 	TENANT_ID_HEADER_NAME = "X-Scope-OrgID"
 )
@@ -31,10 +33,20 @@ var (
 )
 
 func main() {
-	config = _config.NewConfig()
+	var err error
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	config, err = _config.NewConfig()
+	if err != nil {
+		logger.Fatal("failed to load config", zap.String("error", err.Error()))
+	}
 	config.Print()
 
-	targetUrl := config.TargetUrl()
+	targetUrl, err := config.TargetUrl()
+	if err != nil {
+		logger.Fatal("failed to parse target URL", zap.String("error", err.Error()))
+	}
 
 	reverseProxy = &httputil.ReverseProxy{
 		Director: func(request *http.Request) {
@@ -49,8 +61,13 @@ func main() {
 	router.Use(middlewares.MetricsMiddleware)
 	router.POST(PUSH_ENDPOINT, handlePushRequest)
 	router.GET(HEALTHCHECK_ENDPOINT, handleHealthCheck)
+	router.GET(CONFIG_ENDPOINT, handleConfig)
 	router.GET(middlewares.METRICS_ENDPOINT, gin.WrapH(promhttp.Handler()))
 	router.Run(config.BindAddr())
+}
+
+func handleConfig(c *gin.Context) {
+	c.YAML(http.StatusOK, config)
 }
 
 func handleHealthCheck(c *gin.Context) {
@@ -69,12 +86,12 @@ func handlePushRequest(c *gin.Context) {
 		}
 
 		if err = appendTenantLabelToPushRequest(tenantId, pushRequest); err != nil {
-			c.Writer.WriteHeader(http.StatusInternalServerError)
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
 		if err = rewriteRequestBody(c.Request, pushRequest); err != nil {
-			c.Writer.WriteHeader(http.StatusBadRequest)
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 	}
