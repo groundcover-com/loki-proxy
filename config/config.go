@@ -30,6 +30,7 @@ func NewConfig() *Config {
 	viper.AutomaticEnv()
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
+	viper.AddConfigPath("config")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.ReadConfig(strings.NewReader(defaultConfig))
 
