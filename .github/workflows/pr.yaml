@@ -1,0 +1,35 @@
+name: pr
+
+on:
+ pull_request:
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      # -
+      #   name: Dependency Review
+      #   uses: actions/dependency-review-action@v2
+      #   with:
+      #     fail-on-severity: low
+      -
+        name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          cache: true
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          version: ~> 1.9
+          args: release --snapshot --rm-dist
