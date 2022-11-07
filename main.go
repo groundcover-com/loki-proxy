@@ -17,6 +17,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
+	"go.uber.org/zap"
 )
 
 const (
@@ -32,10 +33,19 @@ var (
 )
 
 func main() {
-	config = _config.NewConfig()
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	config, err := _config.NewConfig()
+	if err != nil {
+		logger.Fatal("failed to load config", zap.String("error", err.Error()))
+	}
 	config.Print()
 
-	targetUrl := config.TargetUrl()
+	targetUrl, err := config.TargetUrl()
+	if err != nil {
+		logger.Fatal("failed to parse target URL", zap.String("error", err.Error()))
+	}
 
 	reverseProxy = &httputil.ReverseProxy{
 		Director: func(request *http.Request) {
@@ -77,12 +87,12 @@ func handlePushRequest(c *gin.Context) {
 		}
 
 		if err = appendTenantLabelToPushRequest(tenantId, pushRequest); err != nil {
-			c.Writer.WriteHeader(http.StatusInternalServerError)
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
 		if err = rewriteRequestBody(c.Request, pushRequest); err != nil {
-			c.Writer.WriteHeader(http.StatusBadRequest)
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 	}
