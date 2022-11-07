@@ -21,6 +21,7 @@ import (
 
 const (
 	HEALTHCHECK_ENDPOINT  = "/health"
+	CONFIG_ENDPOINT       = "/config"
 	PUSH_ENDPOINT         = "/loki/api/v1/push"
 	TENANT_ID_HEADER_NAME = "X-Scope-OrgID"
 )
@@ -49,8 +50,15 @@ func main() {
 	router.Use(middlewares.MetricsMiddleware)
 	router.POST(PUSH_ENDPOINT, handlePushRequest)
 	router.GET(HEALTHCHECK_ENDPOINT, handleHealthCheck)
+	router.GET(CONFIG_ENDPOINT, createHandleConfigEndpoint(config))
 	router.GET(middlewares.METRICS_ENDPOINT, gin.WrapH(promhttp.Handler()))
 	router.Run(config.BindAddr())
+}
+
+func createHandleConfigEndpoint(config *_config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.YAML(http.StatusOK, config)
+	}
 }
 
 func handleHealthCheck(c *gin.Context) {
