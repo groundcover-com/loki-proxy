@@ -23,6 +23,6 @@ The following table lists the configurable parameters of the template Helm chart
 
 | Parameter           | Description                                                | Default                             |
 | ------------------- | ---------------------------------------------------------- | ----------------------------------- |
-| `target.tenant_id`  | Global tenant ID to push all incoming logs                 | `customers`                         |
-| `target.label_name` | Label name of orignal tenant header value on global tenant | `customer`                          |
-| `taraget.url`       | Loki push api url                                          | `http://loki:3100/loki/api/v1/push` |
+| `config.target.tenant_id`  | Global tenant ID to push all incoming logs                 | `customers`                         |
+| `config.target.label_name` | Label name of orignal tenant header value on global tenant | `customer`                          |
+| `config.taraget.url`       | Loki push api url                                          | `http://loki:3100/loki/api/v1/push` |
