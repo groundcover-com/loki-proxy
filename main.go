@@ -33,10 +33,11 @@ var (
 )
 
 func main() {
+	var err error
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
-	config, err := _config.NewConfig()
+	config, err = _config.NewConfig()
 	if err != nil {
 		logger.Fatal("failed to load config", zap.String("error", err.Error()))
 	}
