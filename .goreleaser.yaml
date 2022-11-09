@@ -25,6 +25,7 @@ dockers:
     build_flag_templates:
       - --platform=linux/amd64
     image_templates:
+      - 'quay.io/groundcover/{{ .ProjectName }}:{{ .Version }}-amd64'
       - 'public.ecr.aws/groundcovercom/{{ .ProjectName }}:{{ .Version }}-amd64'
   -
     use: buildx
@@ -33,8 +34,14 @@ dockers:
     build_flag_templates:
       - --platform=linux/arm64/v8
     image_templates:
+      - 'quay.io/groundcover/{{ .ProjectName }}:{{ .Version }}-arm64v8'
       - 'public.ecr.aws/groundcovercom/{{ .ProjectName }}:{{ .Version }}-arm64v8'
 docker_manifests:
+  - 
+    name_template: 'quay.io/groundcover/{{ .ProjectName }}:{{ .Version }}'
+    image_templates:
+      - 'quay.io/groundcover/{{ .ProjectName }}:{{ .Version }}-amd64'
+      - 'quay.io/groundcover/{{ .ProjectName }}:{{ .Version }}-arm64v8'
   - 
     name_template: 'public.ecr.aws/groundcovercom/{{ .ProjectName }}:{{ .Version }}'
     image_templates:
