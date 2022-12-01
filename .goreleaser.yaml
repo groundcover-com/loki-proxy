@@ -18,13 +18,20 @@ archives:
       - none*
 dockers:
   -
+    use: buildx
     goos: linux
     goarch: amd64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - --platform=linux/amd64
     image_templates:
       - 'public.ecr.aws/groundcovercom/{{ .ProjectName }}:{{ .Version }}-amd64'
   -
+    use: buildx
     goos: linux
     goarch: arm64
+    build_flag_templates:
+      - --platform=linux/arm64/v8
     image_templates:
       - 'public.ecr.aws/groundcovercom/{{ .ProjectName }}:{{ .Version }}-arm64v8'
 docker_manifests:
