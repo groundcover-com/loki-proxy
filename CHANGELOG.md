@@ -18,6 +18,8 @@ We use the following categories for changes:
 
 ### Added
 
+- add dependabot [#sc-3763]
+
 ### Changed
 
 ### Fixed
