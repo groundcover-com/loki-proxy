@@ -19,6 +19,7 @@ We use the following categories for changes:
 ### Added
 
 - multi platform docker images [#sc-5643]
+- add dependabot [#sc-3763]
 
 ### Changed
 
