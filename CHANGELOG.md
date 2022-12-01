@@ -18,10 +18,6 @@ We use the following categories for changes:
 
 ### Added
 
-- add quay.io registry [#sc-5530]
-- multi platform docker images [#sc-5643]
-- add dependabot [#sc-3763]
-
 ### Changed
 
 ### Fixed
@@ -31,6 +27,14 @@ We use the following categories for changes:
 ### Deprecated
 
 ### Security
+
+## [0.1.0] - 2022-12-01
+
+### Added
+
+- add quay.io registry [#sc-5530]
+- multi platform docker images [#sc-5643]
+- add dependabot [#sc-3763]
 
 ## [0.1.0] - 2022-11-07
 
