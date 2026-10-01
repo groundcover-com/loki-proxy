@@ -22,6 +22,9 @@ type Config struct {
 		Port    int
 		Address string
 	}
+	Auth struct {
+		Token string
+	}
 }
 
 func NewConfig() (*Config, error) {
