@@ -30,11 +30,12 @@ const (
 var (
 	config       *_config.Config
 	reverseProxy *httputil.ReverseProxy
+	logger       *zap.Logger
 )
 
 func main() {
 	var err error
-	logger, _ := zap.NewProduction()
+	logger, _ = zap.NewProduction()
 	defer logger.Sync()
 
 	config, err = _config.NewConfig()
@@ -82,18 +83,23 @@ func handlePushRequest(c *gin.Context) {
 	if tenantId != "" {
 		var pushRequest *logproto.PushRequest
 		if pushRequest, err = push.ParseRequest(log.Logger, tenantId, c.Request, nil); err != nil {
+			logger.Warn("failed to parse push request", zap.String("tenantId", tenantId), zap.String("remoteAddr", c.Request.RemoteAddr), zap.String("error", err.Error()))
 			return
 		}
 
 		if err = appendTenantLabelToPushRequest(tenantId, pushRequest); err != nil {
+			logger.Error("failed to append tenant label to push request", zap.String("tenantId", tenantId), zap.String("remoteAddr", c.Request.RemoteAddr), zap.String("error", err.Error()))
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
 		if err = rewriteRequestBody(c.Request, pushRequest); err != nil {
+			logger.Error("failed to rewrite push request body", zap.String("tenantId", tenantId), zap.String("remoteAddr", c.Request.RemoteAddr), zap.String("error", err.Error()))
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+	} else {
+		logger.Warn("push request missing tenant id header", zap.String("remoteAddr", c.Request.RemoteAddr))
 	}
 
 	reverseProxy.ServeHTTP(c.Writer, c.Request)
