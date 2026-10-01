@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"crypto/subtle"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -34,6 +36,21 @@ var (
 		[]string{URL_LABEL_NAME, METHOD_LABEL_NAME, STATUS_CODE_LABEL_NAME},
 	)
 )
+
+// AuthMiddleware requires requests to present a valid bearer token matching
+// the configured auth token. If no token is configured, all requests are
+// rejected to avoid silently exposing the proxy without authentication.
+func AuthMiddleware(token string) gin.HandlerFunc {
+	expected := []byte("Bearer " + token)
+	return func(c *gin.Context) {
+		provided := []byte(c.GetHeader("Authorization"))
+		if token == "" || subtle.ConstantTimeCompare(provided, expected) != 1 {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		c.Next()
+	}
+}
 
 func MetricsMiddleware(c *gin.Context) {
 	path := c.FullPath()

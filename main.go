@@ -59,10 +59,13 @@ func main() {
 
 	router := gin.Default()
 	router.Use(middlewares.MetricsMiddleware)
-	router.POST(PUSH_ENDPOINT, handlePushRequest)
 	router.GET(HEALTHCHECK_ENDPOINT, handleHealthCheck)
-	router.GET(CONFIG_ENDPOINT, handleConfig)
 	router.GET(middlewares.METRICS_ENDPOINT, gin.WrapH(promhttp.Handler()))
+
+	authorized := router.Group("/", middlewares.AuthMiddleware(config.Auth.Token))
+	authorized.POST(PUSH_ENDPOINT, handlePushRequest)
+	authorized.GET(CONFIG_ENDPOINT, handleConfig)
+
 	router.Run(config.BindAddr())
 }
 
